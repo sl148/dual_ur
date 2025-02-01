@@ -1,0 +1,12 @@
+[submodule "Universal_Robots_ROS2_GZ_Simulation"]
+	path = Universal_Robots_ROS2_GZ_Simulation
+	url = git@github.com:sl148/Universal_Robots_ROS2_GZ_Simulation.git
+[submodule "moveit2"]
+	path = moveit2
+	url = git@github.com:sl148/moveit2.git
+[submodule "Universal_Robots_ROS2_Description"]
+	path = Universal_Robots_ROS2_Description
+	url = git@github.com:sl148/Universal_Robots_ROS2_Description.git
+[submodule "ros2_robotiq_gripper"]
+	path = ros2_robotiq_gripper
+	url = git@github.com:sl148/ros2_robotiq_gripper.git
