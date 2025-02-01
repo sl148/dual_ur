@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <xacro:macro name="ur_robotiq_rs" params="
+    ur_name:=ur
+    ur_type:=ur5x
+    tf_prefix
+    parent
+    *origin
+    use_fake_hardware:=false
+    fake_sensor_commands:=false
+    sim_gazebo:=false
+    sim_ignition:=false
+    headless_mode:=false
+    initial_positions
+    simulation_controllers"
+    >
+
+    <!-- import main macro -->
+    <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+    <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_85_macro.urdf.xacro" />
+    <xacro:include filename="$(find robotiq_description)/urdf/ur_to_robotiq_adapter.urdf.xacro" />
+    <!-- <xacro:include filename="$(find ur_robotiq_rs_moveit_config)/urdf/realsense_d435.urdf.xacro"/> -->
+    
+
+    <!-- property -->
+    <xacro:property name="joint_limits_parameters_file" value="$(find ur_description)/config/${ur_type}/joint_limits.yaml"/>
+    <xacro:property name="kinematics_parameters_file" value="$(find ur_description)/config/${ur_type}/default_kinematics.yaml"/>
+    <xacro:property name="physical_parameters_file" value="$(find ur_description)/config/${ur_type}/physical_parameters.yaml"/>
+    <xacro:property name="visual_parameters_file" value="$(find ur_description)/config/${ur_type}/visual_parameters.yaml"/>
+    <xacro:property name="transmission_hw_interface" value=""/>
+    <xacro:property name="safety_limits" value="false"/>
+    <xacro:property name="safety_pos_margin" value="0.15"/>
+    <xacro:property name="safety_k_position" value="20"/>
+    <!-- ros2_control related parameters -->
+    <xacro:property name="headless_mode" value="false" />
+    <xacro:property name="robot_ip" value="0.0.0.0" />
+    <xacro:property name="script_filename" value=""/>
+    <xacro:property name="output_recipe_filename" value=""/>
+    <xacro:property name="input_recipe_filename" value=""/>
+    <xacro:property name="reverse_ip" value="0.0.0.0"/>
+    <xacro:property name="script_command_port" value="50004"/>
+    <xacro:property name="reverse_port" value="50001"/>
+    <xacro:property name="script_sender_port" value="50002"/>
+    <xacro:property name="trajectory_port" value="50003"/>
+    <!--   tool communication related parameters-->
+    <xacro:property name="use_tool_communication" value="false" />
+    <xacro:property name="tool_voltage" value="0" />
+    <xacro:property name="tool_parity" value="0" />
+    <xacro:property name="tool_baud_rate" value="115200" />
+    <xacro:property name="tool_stop_bits" value="1" />
+    <xacro:property name="tool_rx_idle_chars" value="1.5" />
+    <xacro:property name="tool_tx_idle_chars" value="3.5" />
+    <xacro:property name="tool_device_name" value="/tmp/ttyUR" />
+    <xacro:property name="tool_tcp_port" value="54321" />
+
+
+    <!-- arm -->
+    <xacro:ur_robot
+      name="${ur_name}"
+      tf_prefix="${tf_prefix}"
+      parent="${parent}" 
+      joint_limits_parameters_file="${joint_limits_parameters_file}"
+      kinematics_parameters_file="${kinematics_parameters_file}"
+      physical_parameters_file="${physical_parameters_file}"
+      visual_parameters_file="${visual_parameters_file}"
+      safety_limits="${safety_limits}"
+      safety_pos_margin="${safety_pos_margin}"
+      safety_k_position="${safety_k_position}"
+      >
+      <xacro:insert_block name="origin" />          <!-- position robot in the parent link -->
+    </xacro:ur_robot>
+
+    <!-- adapter -->
+    <xacro:ur_to_robotiq
+      prefix="${tf_prefix}"
+      parent="${tf_prefix}tool0"
+      child="${tf_prefix}gripper_mount_link"
+      rotation="0.0"
+      />
+
+    <!-- gripper -->
+    <xacro:robotiq_gripper name="${ur_name}gripper" 
+        prefix="${tf_prefix}"
+        parent="${tf_prefix}gripper_mount_link" 
+        use_fake_hardware="${use_fake_hardware}"
+        sim_gazebo="$(arg sim_gazebo)">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:robotiq_gripper>
+
+    <!-- grasp point for planning -->
+    <link name="${tf_prefix}grasp_point"/>
+    <joint name="${tf_prefix}grasp_point_joint" type="fixed">
+      <parent link="${tf_prefix}tool0"/>
+      <child link="${tf_prefix}grasp_point"/>
+      <origin xyz="0 0 0.15" rpy="0 0 0"/>
+    </joint>
+
+    <!-- realsense camera -->
+    <!-- Use the nominal extrinsics between camera frames if the calibrated extrinsics aren't being published. e.g. running the device in simulation  -->
+    <!-- <xacro:sensor_d435 parent="${tf_prefix}tool0"
+      name="${tf_prefix}camera"
+      use_nominal_extrinsics="true" 
+      add_plug="false" 
+      use_mesh="true">
+      <origin xyz="0 -0.1 0" rpy="0 -1.5707 1.5707"/>
+    </xacro:sensor_d435> -->
+
+  </xacro:macro>
+</robot>

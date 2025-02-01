@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dual_ur_robotiq_rs">
+
+    <!-- parameters -->
+    <xacro:arg name="ur_type" default="ur5"/>
+    <xacro:arg name="sim_gazebo" default="true" />
+    <xacro:arg name="simulation_controllers" default="$(find dual_ur_robotiq_rs_moveit_config)/config/controllers.yaml" />
+    <xacro:arg name="left_initial_positions_file" default="$(find dual_ur_robotiq_rs_moveit_config)/config/left_initial_positions.yaml"/>
+    <xacro:arg name="right_initial_positions_file" default="$(find dual_ur_robotiq_rs_moveit_config)/config/right_initial_positions.yaml"/>
+    <xacro:arg name="base_frame_file" default="$(find dual_ur_robotiq_rs_moveit_config)/config/base_frame.yaml" />
+    <xacro:arg name="transmission_hw_interface" default=""/>
+
+    <xacro:property name="base_frame_file" value="$(arg base_frame_file)"/>
+    <xacro:property name="left_base_frame" value="${xacro.load_yaml(base_frame_file)['left_base_frame']}"/>
+    <xacro:property name="right_base_frame" value="${xacro.load_yaml(base_frame_file)['right_base_frame']}"/>
+
+
+    <!-- import main macro -->
+    <xacro:include filename="$(find ur_robotiq_rs_moveit_config)/urdf/ur_robotiq_rs_macro.urdf.xacro"/>
+    <xacro:include filename="$(find ur_robotiq_rs_moveit_config)/urdf/ur_gz.ros2_control.xacro"/>
+
+    <link name="world"/>
+
+    <!-- left ur_robotiq_rs -->
+    <xacro:ur_robotiq_rs 
+        ur_name="left_ur"
+        ur_type="$(arg ur_type)" 
+        tf_prefix="left_" 
+        parent="world"
+        sim_gazebo="$(arg sim_gazebo)"
+        initial_positions="$(arg left_initial_positions_file)"
+        simulation_controllers="$(arg simulation_controllers)">
+        <origin xyz="${left_base_frame['x']} ${left_base_frame['y']} ${left_base_frame['z']}"
+            rpy="${left_base_frame['roll']} ${left_base_frame['pitch']} ${left_base_frame['yaw']}" />
+    </xacro:ur_robotiq_rs>
+
+    <!-- This avoids the redefinition of materials in case multple cameras are imported. -->
+    <xacro:property name="realsense_materials_defined" value="true" />
+
+    <!-- right ur_robotiq_rs -->
+    <xacro:ur_robotiq_rs 
+        ur_name="right_ur"
+        ur_type="$(arg ur_type)" 
+        tf_prefix="right_" 
+        parent="world"
+        sim_gazebo="$(arg sim_gazebo)"
+        initial_positions="$(arg right_initial_positions_file)"
+        simulation_controllers="$(arg simulation_controllers)">
+        <origin xyz="${right_base_frame['x']} ${right_base_frame['y']} ${right_base_frame['z']}"
+            rpy="${right_base_frame['roll']} ${right_base_frame['pitch']} ${right_base_frame['yaw']}" />
+    </xacro:ur_robotiq_rs>
+
+    <gazebo reference="world">
+    </gazebo>
+    <gazebo>
+        <!-- <plugin filename="libgz_ros2_control-system.so" name="gz_ros2_control::GazeboSimROS2ControlPlugin"> -->
+        <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+            <parameters>$(arg simulation_controllers)</parameters>
+        </plugin>
+    </gazebo>
+
+    <xacro:ur_ros2_control
+        name="left_ur"
+        tf_prefix="left_"
+        transmission_hw_interface="$(arg transmission_hw_interface)"
+    />
+
+    <xacro:ur_ros2_control
+        name="right_ur"
+        tf_prefix="right_"
+        transmission_hw_interface="$(arg transmission_hw_interface)"
+    />
+
+    <xacro:if value="$(arg sim_gazebo)">
+        
+
+        <!-- grasp fix plugin for gazebo classic -->
+        <!-- <gazebo>
+            <plugin name="gazebo_grasp_fix" filename="libgazebo_grasp_fix.so">
+                <arm>
+                    <arm_name>left_robotiq_85_gripper_arm</arm_name>
+                    <palm_link>left_wrist_3_link</palm_link>
+                    <gripper_link>left_robotiq_85_left_finger_tip_link</gripper_link>
+                    <gripper_link>left_robotiq_85_right_finger_tip_link</gripper_link>
+                    <gripper_link>left_robotiq_85_left_knuckle_link</gripper_link>
+                    <gripper_link>left_robotiq_85_right_knuckle_link</gripper_link>
+                    <gripper_link>left_robotiq_85_left_inner_knuckle_link</gripper_link>
+                    <gripper_link>left_robotiq_85_right_inner_knuckle_link</gripper_link>
+                </arm>
+                <arm>
+                    <arm_name>right_robotiq_85_gripper_arm</arm_name>
+                    <palm_link>right_wrist_3_link</palm_link>
+                    <gripper_link>right_robotiq_85_left_finger_tip_link</gripper_link>
+                    <gripper_link>right_robotiq_85_right_finger_tip_link</gripper_link>
+                    <gripper_link>right_robotiq_85_left_knuckle_link</gripper_link>
+                    <gripper_link>right_robotiq_85_right_knuckle_link</gripper_link>
+                    <gripper_link>right_robotiq_85_left_inner_knuckle_link</gripper_link>
+                    <gripper_link>right_robotiq_85_right_inner_knuckle_link</gripper_link>
+                </arm>
+                <forces_angle_tolerance>150</forces_angle_tolerance>
+                <update_rate>30</update_rate>
+                <grip_count_threshold>1</grip_count_threshold>
+                <max_grip_count>2</max_grip_count>
+                <release_tolerance>0.01</release_tolerance>
+                <disable_collisions_on_attach>false</disable_collisions_on_attach>
+                <contact_topic>__default_topic__</contact_topic>
+             </plugin>
+         </gazebo> -->
+
+    </xacro:if>
+
+</robot>
