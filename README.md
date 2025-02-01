@@ -66,6 +66,12 @@ git clone --recurse-submodules https://github.com/sl148/dual_ur.git src
 rosdep update && rosdep install --ignore-src --from-paths src -y
 ```
 
+### 4. Source Robotiq Dependencies
+```bash
+# There might be a workaround, but this works
+git clone https://github.com/tylerjw/serial.git -b ros2 $DUAL_ARM_WS/src/ros2_robotiq_gripper/
+```
+
 ### 5. Build Workspace
 ```bash
 cd $DUAL_ARM_WS
