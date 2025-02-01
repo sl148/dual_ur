@@ -78,7 +78,7 @@ cd $DUAL_ARM_WS
 colcon build --symlink-install
 ```
 
-### 6. Running the Dual UR System
+## Usage
 Once the setup is complete, you can launch the system using:
 ```bash
 source /opt/ros/$ROS_DISTRO/setup.bash
