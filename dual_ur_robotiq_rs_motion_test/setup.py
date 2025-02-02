@@ -23,7 +23,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'motion_test_simple = dual_ur_robotiq_rs_motion_test.motion_test_simple:main',
+            'motion_test_arm = dual_ur_robotiq_rs_motion_test.motion_test_arm:main',
+            'motion_test_gripper = dual_ur_robotiq_rs_motion_test.motion_test_gripper:main',
         ],
     },
 )

@@ -1,0 +1,7 @@
+*.pyc
+__pycache__/
+geometric_shapes/
+moveit_msgs/
+moveit_resources/
+srdfdom/
+ros2_robotiq_gripper/

@@ -124,8 +124,15 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
+            "test_mode",
+            default_value="true",
+            description="Python API tutorial file name",
+        ),
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
             "test_name",
-            default_value="motion_test_simple",
+            default_value="motion_test_arm",
             description="Python API tutorial file name",
         ),
     )
@@ -143,6 +150,7 @@ def generate_launch_description():
     warehouse_sqlite_path = LaunchConfiguration('warehouse_sqlite_path')
     launch_servo = LaunchConfiguration('launch_servo')
     test_name = LaunchConfiguration('test_name')
+    test_mode = LaunchConfiguration('test_mode')
 
     
 
@@ -234,11 +242,12 @@ def generate_launch_description():
     motion_test_node = Node(
         name="motion_test_node",
         package="dual_ur_robotiq_rs_motion_test",
-        executable="motion_test_simple",
+        executable="motion_test_gripper",
         output="both",
         parameters=[moveit_config.to_dict(),
                     {"use_sim_time": use_sim_time}
                     ],
+        condition=IfCondition(test_mode),
     )
 
     ld = LaunchDescription()
