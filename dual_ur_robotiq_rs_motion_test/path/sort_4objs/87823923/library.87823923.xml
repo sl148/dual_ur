@@ -1,0 +1,350 @@
+<MotionPlanning warnings="true" warningsAsErrors="true" print="false">
+  <Library>
+  
+    <DistanceMetrics>
+      <Euclidean label="euclidean" strictFormations="true"/>
+      <!--WeightedEuclidean label="euclideanPosition" posWeight="1" rotWeight="0"
+        velWeight="0" avlWeight="0"/-->
+    </DistanceMetrics>
+  
+    <ValidityCheckers>
+      <CollisionDetection label="pqp_solid" method="PQP" ignoreAdjacentLinks="true" ignoreSelfCollision="false" interRobotCollision="true" debug="false"/>
+      <CollisionDetection label="pqp_solid_individual" method="PQP_SOLID" ignoreAdjacentLinks="true" ignoreSelfCollision="false" interRobotCollision="false"/>
+      <CollisionDetection label="pqp" method="PQP" ignoreAdjacentLinks="true" ignoreSelfCollision="false" interRobotCollision="true"/>
+      <CollisionDetection label="pqp_individual" method="PQP" ignoreAdjacentLinks="true" ignoreSelfCollision="false" interRobotCollision="false"/>
+      <CollisionDetection label="pqp_others" method="PQP" ignoreAdjacentLinks="true" ignoreSelfCollision="true" interRobotCollision="true"/>
+      <CollisionDetection label="spheres_individual" method="BoundingSpheres" ignoreAdjacentLinks="true" ignoreSelfCollision="false" interRobotCollision="false"/>
+      <CollisionDetection label="spheres_others" method="BoundingSpheres" ignoreAdjacentLinks="true" ignoreSelfCollision="true" interRobotCollision="true"/>
+  
+      <ComposeCollision label="spheres_pqp_others" operator="OR">
+        <CollisionDetector label="spheres_others"/>
+        <CollisionDetector label="pqp_others"/>
+      </ComposeCollision>
+  
+      <ComposeCollision label="spheres_pqp_individual" operator="OR">
+        <CollisionDetector label="spheres_individual"/>
+        <CollisionDetector label="pqp_individual"/>
+      </ComposeCollision>
+  
+      <ComposeCollision label="spheres_pqp_full" operator="AND">
+        <CollisionDetector label="spheres_pqp_individual"/>
+        <CollisionDetector label="spheres_pqp_others"/>
+      </ComposeCollision>
+  
+      <AlwaysTrueValidity label="alwaysTrue"/>
+    </ValidityCheckers>
+  
+    <NeighborhoodFinders>
+      <BruteForceNF label="BFNF" dmLabel="euclidean" unconnected="false" k="10"/>
+      <BruteForceNF label="Nearest" dmLabel="euclidean" unconnected="false" k="1"/>
+      <BruteForceNF label="BFNFAll" dmLabel="euclidean" k="10"/>
+    </NeighborhoodFinders>
+  
+    <Samplers>
+      <UniformRandomSampler label="UniformRandom" vcLabel="alwaysTrue"/>
+      <UniformRandomSampler label="UniformRandomFree" vcLabel="pqp_solid"/>
+      <UniformRandomSampler label="UniformRandomFreeIndividual" vcLabel="pqp_solid"/>
+      <TerrainSampler label="TerrainSampler" vcLabel="pqp_solid"/>
+    </Samplers>
+  
+    <LocalPlanners>
+      <StraightLine label="sl" binaryEvaluation="false" vcLabel="pqp_solid"/>
+      <StraightLine label="slAlwaysTrue" binaryEvaluation="false" vcLabel="alwaysTrue"/>
+      <ToolFrameLine label="tfl" vcLabel="pqp_solid" smLabel="UniformRandom" saveIntermediates="true"/>
+    </LocalPlanners>
+  
+    <Extenders>
+      <BasicExtender label="BERO" dmLabel="euclidean"
+        vcLabel="pqp_solid" maxDist="100." minDist=".01" debug="false"/>
+    </Extenders>
+  
+    <PathModifiers>
+    </PathModifiers>
+  
+    <Connectors>
+      <CCsConnector label="ConnectCCs" nfLabel="BFNFAll" lpLabel="sl"/>
+      <CCsConnector label="ConnectCCsAlwaysTrue" nfLabel="BFNFAll" lpLabel="slAlwaysTrue"/>
+      <CCsConnector label="EEConnectCCs" nfLabel="BFNF" lpLabel="tfl"/>
+      <NeighborhoodConnector label="Closest" nfLabel="BFNF" lpLabel="sl" checkIfSameCC="false"/>
+      
+      
+      <NeighborhoodConnector label="ClosestAlwaysTrue" nfLabel="BFNF" lpLabel="slAlwaysTrue" checkIfSameCC="false"/>
+      <NeighborhoodConnector label="ConnectAllAlwaysTrue" nfLabel="BFNFAll" lpLabel="slAlwaysTrue" checkIfSameCC="false"/>
+      <NeighborhoodConnector label="EEClosest" nfLabel="BFNF" lpLabel="tfl" checkIfSameCC="false"/>
+    </Connectors>
+  
+    <Metrics>
+      <NumNodesMetric label="NumNodes"/>
+      <!--NumEdgesMetric label="NumEdges"/>
+      <TimeMetric label="TimeInSec"/-->
+    </Metrics>
+  
+    <MapEvaluators>
+      <!--TrueEvaluation label="TrueEvaluator" />
+      <TimeEvaluator label="TimeEval" timeout="1000"/-->
+      <TimeEvaluator label="SmallTimeEval" timeout="2"/>
+      <TimeEvaluator label="TimeEval" timeout="10" />
+      <!--ConditionalEvaluator label="EdgesEval" metric_method="NumEdges"
+        value="1000" operator=">"/>
+      <ConditionalEvaluator label="FreqNodeEval" metric_method="NumNodes"
+        value="50" operator="%"/-->
+  
+      <ConditionalEvaluator label="FullNodes" metric_method="NumNodes"
+        value="10" operator=">="/>
+  
+      <ConditionalEvaluator label="NodesEval" metric_method="NumNodes"
+        value="2" operator=">="/>
+  
+      <ConditionalEvaluator label="SmallNodesEval" metric_method="NumNodes"
+        value="1" operator=">="/>
+  
+      <ConditionalEvaluator label="CompositeNodesEval" metric_method="NumNodes"
+        value="1" operator=">="/>
+  
+      <QueryMethod label="IndividualQuery" graphSearchAlg="dijkstras"/>
+  
+      <!--GroupCBSQuery label="CBSQuery" queryLabel="IndividualQuery"
+        debug="false" vcLabel="pqp_solid" safeIntervalLabel="SI"/-->
+  
+      <GroupQuery label="CompositeQuery"/>
+      <SIPPMethod label="SIPP" debug="false"/>
+      <!--safeIntervalToolLabel="SI"/-->
+  
+      <ComposeEvaluator label="BoundedCompositeQuery" operator="or">
+        <Evaluator label="CompositeQuery"/>
+        <Evaluator label="SmallNodesEval"/>
+      </ComposeEvaluator>
+
+      <ComposeEvaluator label="LazyBoundedCompositeQuery" operator="or">
+        <Evaluator label="CompositeQuery"/>
+        <Evaluator label="SmallNodesEval"/>
+      </ComposeEvaluator>
+  
+      <ComposeEvaluator label="CompositeQueryNodes" operator="or">
+        <Evaluator label="CompositeQuery"/>
+        <Evaluator label="CompositeNodesEval"/>
+      </ComposeEvaluator>
+
+      <ComposeEvaluator label="SmallBoundedCompositeQuery" operator="or">
+        <Evaluator label="SmallTimeEval"/>
+        <Evaluator label="CompositeQuery"/>
+      </ComposeEvaluator>
+
+      <ComposeEvaluator label="TimeBoundedGroupLazyQuery" operator="or">
+       <Evaluator label="GroupLazyQuery"/>
+       <Evaluator label="TimeEval"/>
+     </ComposeEvaluator>
+
+
+      <!-- <ComposeEvaluator label="LazyGroupQuerySIPP" operator="and" debug="true">
+        <Evaluator label="GroupLazyQuery"/>
+        <Evaluator label="SIPP"/>
+      </ComposeEvaluator> -->
+
+
+
+      <LazyQuery label="LazyQuery" debug="false"
+        vcLabel="pqp_solid" lpLabel="sl" enhanceDmLabel="euclidean"
+        numEnhance="30" d="1.0" deleteInvalid="true">
+        <NodeConnectionMethod label="ConnectAllAlwaysTrue"/>
+        <Resolution mult="27"/>
+        <Resolution mult="16"/>
+        <Resolution mult="1"/>
+      </LazyQuery>
+
+      <GroupLazyQuery label="GroupLazyQuery" debug="false"
+        vcLabel="pqp_solid" lpLabel="sl" enhanceDmLabel="euclidean"
+        numEnhance="30" d="1.0" deleteInvalid="true">
+        <NodeConnectionMethod label="ConnectAllAlwaysTrue"/>
+        <Resolution mult="27"/>
+        <Resolution mult="16"/>
+        <Resolution mult="1"/>
+      </GroupLazyQuery>
+
+      <GroupLazyQuery label="GroupLazyQuerySIPP" debug="false"
+        vcLabel="pqp_solid" lpLabel="sl" enhanceDmLabel="euclidean"
+        numEnhance="30" d="1.0" deleteInvalid="true" extraEvalLabel="SIPP">
+        <NodeConnectionMethod label="ConnectAllAlwaysTrue"/>
+        <Resolution mult="27"/>
+        <Resolution mult="16"/>
+        <Resolution mult="1"/>
+      </GroupLazyQuery>
+
+      <ComposeEvaluator label="MinimumLazyQuery" operator="and">
+        <Evaluator label="LazyQuery"/>
+        <Evaluator label="CompositeQuery"/>
+      </ComposeEvaluator>
+
+  
+    </MapEvaluators>
+  
+    <MPStrategies>
+      <BasicPRM label="PRM" writeOutput="false">
+        <Sampler label="UniformRandomFree" number="20" attempts="1"/>
+        <Connector label="Closest"/>
+        <Evaluator label="IndividualQuery"/>
+      </BasicPRM>
+  
+      <BasicRRTStrategy label="RRT"
+        querySampler="UniformRandomFree" samplerLabel="UniformRandomFree"
+        nfLabel="Nearest" extenderLabel="BERO"
+        growGoals="false" growthFocus="0.01" m="1"
+        goalDmLabel="euclidean" goalThreshold="5" writeOutput="false">
+        <Evaluator label="IndividualQuery"/>
+      </BasicRRTStrategy>
+
+      <GroupRRTStrategy label="Composite-RRT" debug="false" modeSampling="true"
+        querySampler="UniformRandomFree" samplerLabel="UniformRandom" 
+        nfLabel="Nearest" extenderLabel="BERO" restrictGrowth="true"
+        growGoals="false" growthFocus="0.01" m="1"
+        goalDmLabel="euclidean" goalThreshold="100">
+        <Evaluator label="SmallBoundedCompositeQuery"/>
+      </GroupRRTStrategy>
+  
+      <GroupPRM label="CompositePRM" modeSampling="true" writeOutput="false">
+        <Connector label="Closest"/>
+        <Connector label="ConnectCCs"/>
+        <Sampler label="UniformRandomFree" number="1" attempts="1"/>
+        <!--Connector label="ClosestAlwaysTrue"/>
+        <Connector label="ConnectCCsAlwaysTrue"/>
+        <Sampler label="UniformRandom" number="1" attempts="1"/-->
+        <Evaluator label="CompositeQuery"/>
+      </GroupPRM>
+  
+      <GroupPRM label="CompositeQueryStrategy" modeSampling="true" querySampler="UniformRandomFree" writeOutput="false">
+        <Connector label="Closest"/>
+        <Connector label="ConnectCCs"/>
+        <Evaluator label="BoundedCompositeQuery"/>
+      </GroupPRM>
+  
+      <GroupPRM label="CompositeEEPRM" modeSampling="true" writeOutput="false">
+        <Connector label="EEClosest"/>
+        <Evaluator label="BoundedCompositeQuery"/>
+        <Sampler label="UniformRandomFree" number="1" attempts="1"/>
+      </GroupPRM>
+
+
+      <GroupPRM label="LazyCompositeQueryStrategy" debug="false" modeSampling="true" querySampler="UniformRandomFree">
+        <Connector label="ClosestAlwaysTrue"/>
+        <Connector label="ConnectCCsAlwaysTrue"/>
+        <!-- <Evaluator label="GroupLazyQuery"/> -->
+        <Evaluator label="TimeBoundedGroupLazyQuery"/>
+      </GroupPRM>
+
+
+
+  
+      <GroupPRM label="CompositeNodes" modeSampling="true" writeOutput="false">
+        <Sampler label="UniformRandomFree" number="10" attempts="1"/>
+        <Connector label="Closest"/>
+        <Connector label="ConnectCCs"/>
+        <Evaluator label="FullNodes"/>
+      </GroupPRM>
+
+
+
+      <GroupPRM label="LazyCompositeNodes" modeSampling="true" writeOutput="false">
+        <Sampler label="UniformRandomFree" number="10" attempts="1"/>
+        <Connector label="ClosestAlwaysTrue"/>
+        <!-- <Connector label="ConnectCCsAlwaysTrue"/> -->
+        <Evaluator label="FullNodes"/>
+      </GroupPRM>
+
+
+
+
+  
+      <EvaluateMapStrategy label="CompositeEval" writeOutput="false">
+        <!--Evaluator label="CompositeQuery"/-->
+        <Evaluator label="SIPP"/>
+      </EvaluateMapStrategy>
+
+
+      <!-- <EvaluateMapStrategy label="LazyCompositeEval">
+        <Evaluator label="LazyGroupQuerySIPP"/>
+      </EvaluateMapStrategy> -->
+
+      <EvaluateMapStrategy label="LazyCompositeEvalSIPP">
+        <Evaluator label="GroupLazyQuerySIPP"/>
+      </EvaluateMapStrategy>
+  
+  
+    </MPStrategies>
+  
+    <MPTools>
+      <SafeIntervalTool label="SI" vcLabel="pqp_solid"/>
+    </MPTools>
+  
+    <!-- MPProblem allows multiple solvers to be specified and executed. -->
+  
+    <Solver mpStrategyLabel="PRM" seed="87823923"
+      baseFilename="lazyHG-PRM-87823923"/>
+    <!-- <Solver mpStrategyLabel="Composite-RRT" seed="87823923"
+      baseFilename="hypergraph" vizmoDebug="false"/> -->
+  
+  </Library>
+  
+  <TMPLibrary>
+  	<TMPStrategies>
+      <SimpleMotionMethod label="Motion" teLabel="simple"/>
+      <LazyModeQuery label="LazyModeQuery" teLabel="ModeQuery" teLabel2="SubmodeQuery" 
+                      sgLabel="LazyModeGraph" queryLabel="SIPP"  singleShot="false"
+                      queryStrategy="CompositeEval" vcLabel="pqp_solid" debug="false" ghLabel="GH"
+                      motionEvaluator="ScheduledCBS"/>
+      <LazyModeQuery label="LazyModeQuery-Greedy" teLabel="GreedyModeQuery" teLabel2="ModeHyperpathQuery"
+                      sgLabel="LazyModeGraph" queryLabel="SIPP"  singleShot="true"
+                      queryStrategy="CompositeEval" vcLabel="pqp_solid" debug="false" ghLabel="GH"
+                      motionEvaluator="ScheduledCBS-Greedy"/>
+  	</TMPStrategies>
+  
+  	<PoIPlacementMethods>
+  	</PoIPlacementMethods>
+  
+  	<TaskEvaluators>
+      <SimpleMotionEvaluator label="simple"/>
+      <ModeQuery label="ModeQuery" mgLabel="LazyModeGraph" debug="false" writeHypergraph="false" />
+      <SubmodeQuery label="SubmodeQuery" mgLabel="LazyModeGraph" ghLabel="GH" debug="false" writeHypergraph="false" />
+      <ScheduledCBS label="ScheduledCBS" vcLabel="pqp_solid" queryStrategy="CompositeEval" queryLabel="SIPP" debug="false" bypass="true" sqLabel="Greedy" X=".99999" alpha="1"/>
+      <ScheduledCBS label="ScheduledCBS-Greedy" debug="false" queryStrategy="LazyCompositeEvalSIPP" queryLabel="SIPP" vcLabel="pqp_solid"  bypass="true" sqLabel="ModeHyperpathQuery" X=".99999" alpha="1" writeSolution="false"/>
+      <!-- <ScheduledCBS label="ScheduledCBS2" vcLabel="pqp_solid" queryStrategy="CompositeEval" queryLabel="SIPP" debug="false" bypass="true" sqLabel="GreedyExtra" X="1" alpha="1"/> -->
+      <ModeHyperpathQuery label="ModeHyperpathQuery" mgLabel="LazyModeGraph" ghLabel="GH" debug="false" writeHypergraph="false" />
+      <GreedyHyperpathQuery label="GreedyHyperpathQuery" mgLabel="LazyModeGraph" ghLabel="GH" debug="false" writeHypergraph="false" />
+      <GreedyModeQuery label="GreedyModeQuery" mgLabel="LazyModeGraph" debug="false" writeHypergraph="false" />
+  	</TaskEvaluators>
+    <!-- LazyCompositeEvalSIPP -->
+  	<TaskDecomposers>
+  	</TaskDecomposers>
+  
+  	<TaskAllocators>
+  	</TaskAllocators>
+  
+    <InteractionStrategies>
+      <IndependentPaths label="IndPaths" sgLabel="LazyModeGraph" smLabel="UniformRandomFree"
+                       mpStrategy="CompositePRM" debug="false" vcLabel="pqp_solid"
+                       sequential="true" />
+  
+      <GraspStrategy label="Grasp" sgLabel="LazyModeGraph" objectSMLabel="UniformRandomFree" smLabel="UniformRandomFree" 
+                       objectVCLabel="pqp_solid" mpStrategy="CompositeEEPRM" maxAttempts="1" debug="false" 
+                       vcLabel="pqp_solid" sequential="true" />
+
+      <HandoffStrategy label="Handoff" sgLabel="LazyModeGraph" objectSMLabel="UniformRandomFree" smLabel="UniformRandomFree" 
+                       objectVCLabel="pqp_solid" mpStrategy="CompositeEEPRM" maxAttempts="1000" debug="false" 
+                       vcLabel="pqp_solid" sequential="true" physicalDemo="false" 
+                       minZ=".5" maxZ=".8" minX="-.1" maxX=".1" minY="-.1" maxY=".1" />
+    </InteractionStrategies>
+  
+  	<StateGraphs>
+      <LazyModeGraph label="LazyModeGraph" queryStrategy="LazyCompositeQueryStrategy"
+                 queryStrategyStatic="LazyCompositeQueryStrategy" expansionStrategy="LazyCompositeNodes" 
+                 numUnactuatedSamples="0" numInteractionSamples="1" maxAttempts="10" unactuatedSM="TerrainSampler" 
+                 querySM="UniformRandomFreeIndividual" debug="true" writeHypergraphs="false"
+                 roadmap="true"  resampleAttempts="1"  robotBaseMaxDistance="2.2"/>
+      <GroundedHypergraph label="GH" queryStrategy="LazyCompositeQueryStrategy" queryStaticStrategy="LazyCompositeQueryStrategy" 
+                debug="false"/>
+  	</StateGraphs>
+  
+    <ActionSpace filename="ActionSpace.87823923.xml"/>
+  
+  	<Solver tmpStrategyLabel="LazyModeQuery-Greedy" baseFilename="LAZY-PRM-87823923"/>
+  </TMPLibrary>
+</MotionPlanning>

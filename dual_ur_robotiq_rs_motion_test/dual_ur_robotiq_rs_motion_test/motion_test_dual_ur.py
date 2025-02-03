@@ -55,7 +55,10 @@ def plan_and_execute(
 		robot.execute(robot_trajectory, controllers=[])
 	else:
 		logger.error("Planning failed")
+		return False
+
 	time.sleep(sleep_time)
+	return True
 	
 def plan_traj(
 	robot,
@@ -244,85 +247,167 @@ def define_scale(ur_type):
 		scale = 1.5
 	return scale
 
-def main(args=None):
-	# rclpy.init(args=args)
+def reorder_elements(line):
+	"""
+	Reorders elements in a specific way.
+	Modify this function based on the required order.
+	"""
+	# Example: Assume each line has [x, y, z, roll, pitch, yaw]
+	# and we want to reorder it to [yaw, pitch, roll, z, y, x]
+	if line[1] < 0.0000001:
+		gripper = 0.01
+	else:
+		gripper = 0.65
+	return [line[3]*np.pi, line[2]*np.pi, line[0]*np.pi, line[4]*np.pi, line[5]*np.pi, line[6]*np.pi,
+		 	 gripper, gripper, -gripper, -gripper, -gripper, gripper]  # Adjust as needed
 
+def extend_shorter_list(list1, list2):
+	"""
+	Extends the shorter list by copying its last element until both lists have the same length.
+	"""
+	len1, len2 = len(list1), len(list2)
+
+	if len1 < len2 and list1:
+		list1.extend([list1[-1]] * (len2 - len1))  # Copy last element
+	elif len2 < len1 and list2:
+		list2.extend([list2[-1]] * (len1 - len2))
+
+def get_path(scenario,seed):
+	base_path = os.path.join(
+		"/home/lee/parasol/Lazy-DaSH/experiment_ws/src/dual_ur_robotiq_rs_motion_test/path",
+		str(scenario),
+		"data",
+	)
+	# Initialize lists to store paths
+	right_ur_path = []
+	left_ur_path = []
+
+	# Ensure the base path exists
+	if not os.path.exists(base_path):
+		raise FileNotFoundError(f"Directory {base_path} does not exist.")
+
+	# Iterate over all files in the directory
+	for file_name in os.listdir(base_path):
+		file_path = os.path.join(base_path, file_name)
+		if ("ur5e" not in file_name) or (seed not in file_name):
+			print(file_path, "is not")
+			continue
+		print("selected:",file_path)
+
+		# Ensure it's a file before processing
+		if os.path.isfile(file_path):
+			with open(file_path, 'r') as f:
+				lines = [reorder_elements(tuple(map(float,line.strip().split()))) for line in f.readlines()]
+
+			# Determine which UR5e arm the file belongs to
+			if "ur5e_0" in file_name:
+				right_ur_path = lines
+			elif "ur5e_1" in file_name:
+				left_ur_path = lines
+	
+	extend_shorter_list(left_ur_path, right_ur_path)
+
+	return left_ur_path, right_ur_path
+
+def main(args=None):
 	logger.info(f'\n\n+++++++++++++++++++++++++ START +++++++++++++++++++++++++\n')
 
 	time.sleep(10)
 
 	moveit = MoveItPy(node_name="motion_test")
 
+	left_ur_name = "left_ur_manipulator"
+	right_ur_name = "right_ur_manipulator"
+	left_gripper_name = "left_robotiq_2f_85_gripper"
+	right_gripper_name = "right_robotiq_2f_85_gripper"
 
-	# moveit = MoveItPy(node_name='motion_test')
+	left_ur = moveit.get_planning_component(left_ur_name)
+	right_ur = moveit.get_planning_component(right_ur_name)
+	left_gripper = moveit.get_planning_component(left_gripper_name)
+	right_gripper = moveit.get_planning_component(right_gripper_name)
 
-	robot_name = "both_manipulators"
-	robot = moveit.get_planning_component(robot_name)
-	robot.set_workspace(-3.0, -3.0, 0.0, 3.0, 3.0, 3.0)
+	left_ur.set_workspace(-3.0, -3.0, 0.0, 3.0, 3.0, 3.0)
+	right_ur.set_workspace(-3.0, -3.0, 0.0, 3.0, 3.0, 3.0)
 
-
-	# planning_scene_monitor = moveit.get_planning_scene_monitor()
 	time.sleep(3)
 
-	
-	num_attempts = 1000
-	robot_model = moveit.get_robot_model()
-	robot_state = RobotState(robot_model)
-	
+	left_ur_path, right_ur_path = get_path("sort_4objs","41620151")
 
-	num_timesteps = 5
-	timestep = 0
-	while timestep < num_timesteps:
+	for i in range(len(left_ur_path)):
+		if i == 0:
+			continue
+
+		# if i % 5 != 1:
+		# 	continue
+	
 		logger.info(f'===============================================================================')
-		logger.info(f'Timestep: {timestep}')
+		# logger.info(f'Timestep: {i+1}/{len(left_ur_path)}')
+		logger.info(f'Prev Timestep: {i} | Left: {left_ur_path[i-1][-1]}, Right: {right_ur_path[i-1][-1]}')
+		logger.info(f'Curr Timestep: {i+1} | Left: {left_ur_path[i][-1]}, Right: {right_ur_path[i][-1]}')
 		
-		target = None
-		current = None
+		next_config_left_ur = left_ur_path[i][:6]
+		next_config_right_ur = right_ur_path[i][:6]
+		next_config_left_gripper = left_ur_path[i][6:]
+		next_config_right_gripper = right_ur_path[i][6:]
+		
+		logger.info(f'Plan Left')
+		current_config_left_ur = None
+		current_config_left_gripper = None
 		with moveit.get_planning_scene_monitor().read_only() as scene:
-			robot_state = scene.current_state
-			current = robot_state.get_joint_group_positions(robot_name)
-			logger.info(f"Current Joint Positions: {current}")
-			target = [v + 0.05 for v in current]
-
-		# target = None
-		# for i in range(num_attempts):
-		# 	robot_state.set_to_random_positions()
-		# 	joint_angles = robot_state.get_joint_group_positions(robot_name)
-		# 	if check_valid_state_joints(moveit, robot_name, joint_angles):
-		# 		target = joint_angles
-		# 		break
-		# if target is None:
-		# 	continue
-		
+			robot_state_scene = scene.current_state
+			current_config_left_ur = robot_state_scene.get_joint_group_positions(left_ur_name)
+			current_config_left_gripper = robot_state_scene.get_joint_group_positions(left_gripper_name)
 
 
-		robot_state.set_joint_group_positions(robot_name, target)
-		robot.set_goal_state(robot_state=robot_state)
-		
-		robot_state.set_joint_group_positions(robot_name, current)
-		robot.set_start_state(robot_state=robot_state)
-		
-		# if np.linalg.norm(target - start) < 0.01:
-		# 	continue
-		
-		
-		plan_and_execute(moveit, robot)
-		
-		# planned_traj = plan_traj(moveit, robot)
-		# if planned_traj is not None:
-		# 	logger.info(f'\tSucess')
-		# else:
-		# 	logger.info(f"\tFailed Planning")
-		# 	logger.info(f'\t\tStart {start}')
-		# 	logger.info(f'\t\tGoal {target}\n')
+		logger.info(f'Plan Left Manipulator')
+		robot_state = RobotState(moveit.get_robot_model())
+		robot_state.set_joint_group_positions(left_ur_name, current_config_left_ur)
+		left_ur.set_start_state(robot_state=robot_state)
+		robot_state.set_joint_group_positions(left_ur_name, next_config_left_ur)
+		left_ur.set_goal_state(robot_state=robot_state)
 
-		timestep += 1
+		_ = plan_and_execute(moveit, left_ur)
+
+		logger.info(f'Plan Left Gripper')
+		robot_state = RobotState(moveit.get_robot_model())
+		robot_state.set_joint_group_positions(left_gripper_name, current_config_left_gripper)
+		left_gripper.set_start_state(robot_state=robot_state)
+		robot_state.set_joint_group_positions(left_gripper_name, next_config_left_gripper)
+		left_gripper.set_goal_state(robot_state=robot_state)
+
+		_ = plan_and_execute(moveit, left_gripper)
+	
+	
+		logger.info(f'Plan Right')
+		current_config_right_ur = None
+		current_config_right_gripper = None
+		with moveit.get_planning_scene_monitor().read_only() as scene:
+			robot_state_scene = scene.current_state
+			current_config_right_ur = robot_state_scene.get_joint_group_positions(right_ur_name)
+			current_config_right_gripper = robot_state_scene.get_joint_group_positions(right_gripper_name)
+
+		logger.info(f'Plan Right Manipulator')
+		robot_state = RobotState(moveit.get_robot_model())
+		robot_state.set_joint_group_positions(right_ur_name, current_config_right_ur)
+		right_ur.set_start_state(robot_state=robot_state)
+		robot_state.set_joint_group_positions(right_ur_name, next_config_right_ur)
+		right_ur.set_goal_state(robot_state=robot_state)
+
+		_ = plan_and_execute(moveit, right_ur)
+
+		logger.info(f'Plan Right Gripper')
+		robot_state = RobotState(moveit.get_robot_model())
+		robot_state.set_joint_group_positions(right_gripper_name, current_config_right_gripper)
+		right_gripper.set_start_state(robot_state=robot_state)
+		robot_state.set_joint_group_positions(right_gripper_name, next_config_right_gripper)
+		right_gripper.set_goal_state(robot_state=robot_state)
+
+		_ = plan_and_execute(moveit, right_gripper)
+
 
 
 	logger.info(f'+++ Shutting Down +++')
 	moveit.shutdown()
-	# rclpy.shutdown()
-
 
 
 if __name__ == "__main__":

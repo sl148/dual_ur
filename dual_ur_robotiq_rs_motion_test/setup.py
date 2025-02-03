@@ -25,6 +25,7 @@ setup(
         'console_scripts': [
             'motion_test_arm = dual_ur_robotiq_rs_motion_test.motion_test_arm:main',
             'motion_test_gripper = dual_ur_robotiq_rs_motion_test.motion_test_gripper:main',
+            'motion_test_dual_ur = dual_ur_robotiq_rs_motion_test.motion_test_dual_ur:main',
         ],
     },
 )

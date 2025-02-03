@@ -242,7 +242,7 @@ def generate_launch_description():
     motion_test_node = Node(
         name="motion_test_node",
         package="dual_ur_robotiq_rs_motion_test",
-        executable="motion_test_gripper",
+        executable="motion_test_dual_ur",
         output="both",
         parameters=[moveit_config.to_dict(),
                     {"use_sim_time": use_sim_time}

@@ -1,0 +1,227 @@
+<ActionSpace>
+	<!-- Conditions -->
+
+		<Condition label="UR0-Open" type="motion">
+		<CSpaceConstraint bbx="[-1:1 ; 0.0:0.0 ; -1:1 ; -1:1 ; -1:1 ; -1:1 ; -1:1]" dof="7" type="manip" role="UR0"/>
+	</Condition>
+	<Condition label="UR0-Closed" type="motion">
+		<CSpaceConstraint bbx="[-1:1 ; 0.0001:0.0001 ; -1:1 ; -1:1 ; -1:1 ; -1:1 ; -1:1]" dof="7" type="manip" role="UR0"/>
+	</Condition>
+	<Condition label="UR1-Open" type="motion">
+		<CSpaceConstraint bbx="[-1:1 ; 0.0:0.0 ; -1:1 ; -1:1 ; -1:1 ; -1:1 ; -1:1]" dof="7" type="manip" role="UR1"/>
+	</Condition>
+	<Condition label="UR1-Closed" type="motion">
+		<CSpaceConstraint bbx="[-1:1 ; 0.0001:0.0001 ; -1:1 ; -1:1 ; -1:1 ; -1:1 ; -1:1]" dof="7" type="manip" role="UR1"/>
+	</Condition>
+
+
+
+
+
+
+
+		<Condition label="UR0" type="formation" static="False">
+		<Role name="UR0" type="manip"/>
+	</Condition>
+	<Condition label="UR1" type="formation" static="False">
+		<Role name="UR1" type="manip"/>
+	</Condition>
+	<Condition label="Passive" type="formation" static="False">
+		<Role name="Passive" type="passive"/>
+	</Condition>
+
+	
+	
+	
+	
+	<Condition label="UR0+Passive" type="formation" static="False">
+		<Role name="UR0" type="manip"/>
+		<Role name="Passive" type="passive">
+		<FormationConstraint refRole="UR0" refBody="7" translation="0.15 0 0" orientation="0 -1.57 0"/>
+		</Role>
+	</Condition>
+	<Condition label="UR0+Passive-Static" type="formation" static="True">
+		<Role name="UR0" type="manip"/>
+		<Role name="Passive" type="passive">
+		<FormationConstraint refRole="UR0" refBody="7" translation="0.15 0 0" orientation="0 -1.57 0"/>
+		</Role>
+	</Condition>
+	<Condition label="UR0+Passive-Backoff" type="formation" static="False">
+		<Role name="UR0" type="manip"/>
+		<Role name="Passive" type="passive">
+		<FormationConstraint refRole="UR0" refBody="7" translation="0.22 0 0" orientation="0 -1.57 0"/>
+		</Role>
+	</Condition>
+	<Condition label="UR0+Passive-Backoff-Static" type="formation" static="True">
+		<Role name="UR0" type="manip"/>
+		<Role name="Passive" type="passive">
+		<FormationConstraint refRole="UR0" refBody="7" translation="0.22 0 0" orientation="0 -1.57 0"/>
+		</Role>
+	</Condition>
+	<Condition label="UR0+Passive-Handoff-Backoff" type="formation" static="False">
+		<Role name="UR0" type="manip"/>
+		<Role name="Passive" type="passive">
+		<FormationConstraint refRole="UR0" refBody="7" translation="0.22 0 0" orientation="0 -1.57 0"/>
+		</Role>
+	</Condition>
+	<Condition label="UR0+Passive-Handoff-Backoff-Static" type="formation" static="True">
+		<Role name="UR0" type="manip"/>
+		<Role name="Passive" type="passive">
+		<FormationConstraint refRole="UR0" refBody="7" translation="0.22 0 0" orientation="0 -1.57 0"/>
+		</Role>
+	</Condition>
+
+
+
+	
+	
+	
+	
+	<Condition label="UR1+Passive" type="formation" static="False">
+		<Role name="UR1" type="manip"/>
+		<Role name="Passive" type="passive">
+		<FormationConstraint refRole="UR1" refBody="7" translation="0.15 0 0" orientation="1.57 0 1.57"/>
+		</Role>
+	</Condition>
+	<Condition label="UR1+Passive-Static" type="formation" static="True">
+		<Role name="UR1" type="manip"/>
+		<Role name="Passive" type="passive">
+		<FormationConstraint refRole="UR1" refBody="7" translation="0.15 0 0" orientation="1.57 0 1.57"/>
+		</Role>
+	</Condition>
+	<Condition label="UR1+Passive-Backoff" type="formation" static="False">
+		<Role name="UR1" type="manip"/>
+		<Role name="Passive" type="passive">
+		<FormationConstraint refRole="UR1" refBody="7" translation="0.22 0 0" orientation="1.57 0 1.57"/>
+		</Role>
+	</Condition>
+	<Condition label="UR1+Passive-Backoff-Static" type="formation" static="True">
+		<Role name="UR1" type="manip"/>
+		<Role name="Passive" type="passive">
+		<FormationConstraint refRole="UR1" refBody="7" translation="0.22 0 0" orientation="1.57 0 1.57"/>
+		</Role>
+	</Condition>
+	<Condition label="UR1+Passive-Handoff-Backoff" type="formation" static="False">
+		<Role name="UR1" type="manip"/>
+		<Role name="Passive" type="passive">
+		<FormationConstraint refRole="UR1" refBody="7" translation="0.22 0 0" orientation="1.57 0 1.57"/>
+		</Role>
+	</Condition>
+	<Condition label="UR1+Passive-Handoff-Backoff-Static" type="formation" static="True">
+		<Role name="UR1" type="manip"/>
+		<Role name="Passive" type="passive">
+		<FormationConstraint refRole="UR1" refBody="7" translation="0.22 0 0" orientation="1.57 0 1.57"/>
+		</Role>
+	</Condition>
+
+
+
+
+
+
+
+	
+
+	<!-- Interactions -->
+	<Interaction label="Grasp-UR0+Passive" isLabel="Grasp" reversible="true">
+	<Stage label="Initial">
+		<Condition label="UR0"/>
+		<Condition label="UR0-Open"/>
+		<Condition label="Passive"/>
+	</Stage>
+	<Stage label="MoveToAboveGrasp">
+		<Condition label="UR0+Passive-Backoff"/>
+		<Condition label="UR0-Open"/>
+	</Stage>
+	<Stage label="MoveToGrasp">
+		<Condition label="UR0+Passive"/>
+		<Condition label="UR0-Open"/>
+	</Stage>
+	<Stage label="CloseGrasp">
+		<Condition label="UR0+Passive"/>
+		<Condition label="UR0-Closed"/>
+	</Stage>
+	<Stage label="Lift">
+		<Condition label="UR0+Passive-Backoff"/>
+		<Condition label="UR0-Closed"/>
+	</Stage>
+	<Stage label="Cleanup">
+		<Condition label="UR0+Passive"/>
+		<Condition label="UR0-Closed"/>
+	</Stage>
+	</Interaction>
+<Interaction label="Grasp-UR1+Passive" isLabel="Grasp" reversible="true">
+	<Stage label="Initial">
+		<Condition label="UR1"/>
+		<Condition label="UR1-Open"/>
+		<Condition label="Passive"/>
+	</Stage>
+	<Stage label="MoveToAboveGrasp">
+		<Condition label="UR1+Passive-Backoff"/>
+		<Condition label="UR1-Open"/>
+	</Stage>
+	<Stage label="MoveToGrasp">
+		<Condition label="UR1+Passive"/>
+		<Condition label="UR1-Open"/>
+	</Stage>
+	<Stage label="CloseGrasp">
+		<Condition label="UR1+Passive"/>
+		<Condition label="UR1-Closed"/>
+	</Stage>
+	<Stage label="Lift">
+		<Condition label="UR1+Passive-Backoff"/>
+		<Condition label="UR1-Closed"/>
+	</Stage>
+	<Stage label="Cleanup">
+		<Condition label="UR1+Passive"/>
+		<Condition label="UR1-Closed"/>
+	</Stage>
+	</Interaction>
+
+<Interaction label="Handoff-UR0-UR1-Passive" isLabel="Handoff" reversible="true">
+	<Stage label="Roles">
+		<Condition label="UR0+Passive"/>
+		<Condition label="UR0-Closed"/>
+		<Condition label="UR1"/>
+		<Condition label="UR1-Open"/>
+	</Stage>
+	<Stage label="Initial">
+		<Condition label="UR0+Passive-Static"/>
+		<Condition label="UR0-Closed"/>
+		<Condition label="UR1+Passive-Handoff-Backoff"/>
+		<Condition label="UR1-Open"/>
+	</Stage>
+	<Stage label="PreExchange">
+		<Condition label="UR0+Passive-Static"/>
+		<Condition label="UR0-Closed"/>
+		<Condition label="UR1+Passive"/>
+		<Condition label="UR1-Open"/>
+	</Stage>
+	<Stage label="Exchange">
+		<Condition label="UR0+Passive"/>
+		<Condition label="UR0-Closed"/>
+		<Condition label="UR1+Passive-Static"/>
+		<Condition label="UR1-Closed"/>
+	</Stage>
+	<Stage label="PostExchange">
+		<Condition label="UR0+Passive"/>
+		<Condition label="UR0-Open"/>
+		<Condition label="UR1+Passive-Static"/>
+		<Condition label="UR1-Closed"/>
+	</Stage>
+	<Stage label="Final">
+		<Condition label="UR0+Passive-Handoff-Backoff"/>
+		<Condition label="UR0-Open"/>
+		<Condition label="UR1+Passive-Static"/>
+		<Condition label="UR1-Closed"/>
+	</Stage>
+	<Stage label="Cleanup">
+		<Condition label="UR0"/>
+		<Condition label="UR0-Open"/>
+		<Condition label="UR1+Passive-Static"/>
+		<Condition label="UR1-Closed"/>
+	</Stage>
+</Interaction>
+
+
+</ActionSpace>

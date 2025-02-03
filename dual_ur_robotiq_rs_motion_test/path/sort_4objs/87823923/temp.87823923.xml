@@ -1,0 +1,368 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<MotionPlanning warnings="true" warningsAsErrors="true" print="false">
+
+  <!-- Here we specify input files, such as environment and query. The
+       'baseFilename in the Problem node is for Simulator stat output only. -->
+  <Problem baseFilename="HG-lazy-prm-87823923">
+	<Environment filename="../../../../../../../ur5e_ws/attempt59/src/newpmpl/envs/hardware_experiment_sort.env" frictionCoefficient="0" gravity="0 0 0" positionRes="0.01" orientationRes="0.01" timeRes="0.05">
+		<Terrain capability="passive" show="false">
+			<Boundary limits="[-.4:.4 ; -.4:.4 ; .705:.705 ; 0:0 ; 0:0 ; -1:1]" space="CSpace" shape="box" color="blue"/>
+			<Boundary limits="[.3:.3 ; -.55:-.55 ; -.8:-.8 ; 0:0 ; 0:0 ; 0:0]" space="CSpace" shape="box" color="blue"/>
+			<Boundary limits="[-.3:-.3 ; -.55:-.55 ; -.8:-.8 ; 0:0 ; 0:0 ; 0:0]" space="CSpace" shape="box" color="blue"/>
+			<Boundary limits="[.3:.3 ; -.55:-.55 ; -.8:-.8 ; 1:1 ; 0:0 ; 0:0]" space="CSpace" shape="box" color="blue"/>
+			<Boundary limits="[-.3:-.3 ; -.55:-.55 ; -.8:-.8 ; 1:1 ; 0:0 ; 0:0]" space="CSpace" shape="box" color="blue"/>
+		</Terrain>
+	</Environment>
+
+	<!-- Robots -->
+		<Robot label="orange_0" capability="passive" virtual="false">
+	<MultiBody type="passive">
+		<Base filename="../../custom_worlds/models/block2/meshes/block.obj" color="1.0 0.4 0 1" type="volumetric" movement="rotational" mass="1"/>
+	</MultiBody>
+</Robot>
+
+	<Robot label="blue_0" capability="passive" virtual="false">
+	<MultiBody type="passive">
+		<Base filename="../../custom_worlds/models/block2/meshes/block.obj" color="0.0 0.0 1.0 1" type="volumetric" movement="rotational" mass="1"/>
+	</MultiBody>
+</Robot>
+
+	<Robot label="orange_1" capability="passive" virtual="false">
+	<MultiBody type="passive">
+		<Base filename="../../custom_worlds/models/block2/meshes/block.obj" color="1.0 0.4 0 1" type="volumetric" movement="rotational" mass="1"/>
+	</MultiBody>
+</Robot>
+
+	<Robot label="blue_1" capability="passive" virtual="false">
+	<MultiBody type="passive">
+		<Base filename="../../custom_worlds/models/block2/meshes/block.obj" color="0.0 0.0 1.0 1" type="volumetric" movement="rotational" mass="1"/>
+	</MultiBody>
+</Robot>
+
+
+		<RobotGroup label="orange_0" robotLabels="orange_0"/>
+
+	<RobotGroup label="blue_0" robotLabels="blue_0"/>
+
+	<RobotGroup label="orange_1" robotLabels="orange_1"/>
+
+	<RobotGroup label="blue_1" robotLabels="blue_1"/>
+
+	
+	<GroupTask label="orange_0_start" group="orange_0">
+	<Task label="orange_0_start" robot="orange_0">
+		<StartConstraints>
+			<CSpaceConstraint point="0.3 -0.3 0.75  0.0 0.0 0.3376913803786534"/>
+		</StartConstraints>
+		<PathConstraints>
+			
+		</PathConstraints>
+		<GoalConstraints>
+			
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+	<GroupTask label="blue_0_start" group="blue_0">
+	<Task label="blue_0_start" robot="blue_0">
+		<StartConstraints>
+			<CSpaceConstraint point="0.3 0.3 0.75  0.0 0.0 -0.3482796818380087"/>
+		</StartConstraints>
+		<PathConstraints>
+			
+		</PathConstraints>
+		<GoalConstraints>
+			
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+	<GroupTask label="orange_1_start" group="orange_1">
+	<Task label="orange_1_start" robot="orange_1">
+		<StartConstraints>
+			<CSpaceConstraint point="-0.3 0.3 0.75  0.0 0.0 -0.3376913803786534"/>
+		</StartConstraints>
+		<PathConstraints>
+			
+		</PathConstraints>
+		<GoalConstraints>
+			
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+	<GroupTask label="blue_1_start" group="blue_1">
+	<Task label="blue_1_start" robot="blue_1">
+		<StartConstraints>
+			<CSpaceConstraint point="-0.3 -0.3 0.75  0.0 0.0 -0.8306515770151348"/>
+		</StartConstraints>
+		<PathConstraints>
+			
+		</PathConstraints>
+		<GoalConstraints>
+			
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+
+
+	<Robot label="ur5e_0" filename="../../../../../../../ur5e_ws/attempt59/src/newpmpl/robots/ur5e_small_sorting_0.xml" capability="manip"
+	   baseJoint="shoulder_pan_joint" baseRotation="1">
+	<Agent type="child">
+	</Agent>
+	<KDLModel filename="../../ur5e_ws/attempt59/src/newpmpl/../fmauch_universal_robot/ur_description/urdf/ur5e_hande.urdf" chainRoot="base_link" chainTip="wrist_3_link"/>
+</Robot>
+
+<Robot label="ur5e_1" filename="../../../../../../../ur5e_ws/attempt59/src/newpmpl/robots/ur5e_small_sorting_1.xml" capability="manip"
+	   baseJoint="shoulder_pan_joint" baseRotation="0">
+	<Agent type="child">
+	</Agent>
+	<KDLModel filename="../../ur5e_ws/attempt59/src/newpmpl/../fmauch_universal_robot/ur_description/urdf/ur5e_hande.urdf" chainRoot="base_link" chainTip="wrist_3_link"/>
+</Robot>
+
+
+
+		<RobotGroup label="ur5e_0" robotLabels="ur5e_0"/>
+
+	<RobotGroup label="ur5e_1" robotLabels="ur5e_1"/>
+
+
+	<!-- RobotGroup -->
+
+	<!-- Coordinator -->
+    <Robot label="coordinator" virtual="true" filename="../../../../../../../ur5e_ws/attempt59/src/newpmpl/robots/ur5e_hande_compact-r0.xml" 
+           worldLink="base_link" fixed="true">
+      <Agent type="coordinator" dmLabel="euclidean"> 
+        		<Member label="ur5e_0"/>
+		<Member label="ur5e_1"/>
+
+
+        		<InitialGroup label="ur5e_0"/>
+		<InitialGroup label="ur5e_1"/>
+		<InitialGroup label="orange_0"/>
+		<InitialGroup label="blue_0"/>
+		<InitialGroup label="orange_1"/>
+		<InitialGroup label="blue_1"/>
+
+
+      </Agent>
+    </Robot>
+	
+	
+	<GroupTask label="robotStart" group="ur5e_0">
+	<Task label="query" robot="ur5e_0">
+		<StartConstraints>
+			<CSpaceConstraint point="0.5  0.  -0.5  0.  0.5  0.5  0."/>
+		</StartConstraints>
+		<PathConstraints>
+			<CSpaceConstraint bbx="[-1:1 ; .0:.0 ; -1:1 ; -1:1 ; -1:1 ; -1:1 ; -1:1]"/>
+		</PathConstraints>
+		<GoalConstraints>
+			
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+	<GroupTask label="robotStart" group="ur5e_1">
+	<Task label="query" robot="ur5e_1">
+		<StartConstraints>
+			<CSpaceConstraint point="0.5  0.  -0.5  0.  0.5  0.5  0."/>
+		</StartConstraints>
+		<PathConstraints>
+			<CSpaceConstraint bbx="[-1:1 ; .0:.0 ; -1:1 ; -1:1 ; -1:1 ; -1:1 ; -1:1]"/>
+		</PathConstraints>
+		<GoalConstraints>
+			
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+	<Task label="query" robot="coordinator">
+      <StartConstraints>
+        <CSpaceConstraint point="-0.75   -0.75   0.75   0.   0.   0. 0"/>
+      </StartConstraints>
+    </Task>
+
+	
+	<!-- Decomposition -->
+    <Decomposition label="main" taskLabel="top" coordinator="coordinator">
+		<SemanticTask label="top" subtaskRelation="AND"/>
+
+		<SemanticTask label="orange_0_goal" parent="top" decomposable="true" fixedAllocation="true" subtaskRelation="XOR">
+
+</SemanticTask>
+
+<SemanticTask label="orange_0_goal_0" parent="orange_0_goal" decomposable="false" fixedAllocation="true" subtaskRelation="AND">
+
+	<GroupTask label="orange_0_goal_0" group="orange_0">
+	<Task label="orange_0_goal_0" robot="orange_0">
+		<StartConstraints>
+			
+		</StartConstraints>
+		<PathConstraints>
+			
+		</PathConstraints>
+		<GoalConstraints>
+			<CSpaceConstraint point="-0.8 -0.6 0.85  0.0 0.0 -0.3"/>
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+
+</SemanticTask>
+
+<SemanticTask label="orange_0_goal_1" parent="orange_0_goal" decomposable="false" fixedAllocation="true" subtaskRelation="AND">
+
+	<GroupTask label="orange_0_goal_1" group="orange_0">
+	<Task label="orange_0_goal_1" robot="orange_0">
+		<StartConstraints>
+			
+		</StartConstraints>
+		<PathConstraints>
+			
+		</PathConstraints>
+		<GoalConstraints>
+			<CSpaceConstraint point="-0.8 -0.6 0.85  1.0 0.0 -0.3"/>
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+
+</SemanticTask>
+
+<SemanticTask label="blue_0_goal" parent="top" decomposable="true" fixedAllocation="true" subtaskRelation="XOR">
+
+</SemanticTask>
+
+<SemanticTask label="blue_0_goal_0" parent="blue_0_goal" decomposable="false" fixedAllocation="true" subtaskRelation="AND">
+
+	<GroupTask label="blue_0_goal_0" group="blue_0">
+	<Task label="blue_0_goal_0" robot="blue_0">
+		<StartConstraints>
+			
+		</StartConstraints>
+		<PathConstraints>
+			
+		</PathConstraints>
+		<GoalConstraints>
+			<CSpaceConstraint point="0.8 -0.6 0.85  0.0 0.0 -0.514964051303139"/>
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+
+</SemanticTask>
+
+<SemanticTask label="blue_0_goal_1" parent="blue_0_goal" decomposable="false" fixedAllocation="true" subtaskRelation="AND">
+
+	<GroupTask label="blue_0_goal_1" group="blue_0">
+	<Task label="blue_0_goal_1" robot="blue_0">
+		<StartConstraints>
+			
+		</StartConstraints>
+		<PathConstraints>
+			
+		</PathConstraints>
+		<GoalConstraints>
+			<CSpaceConstraint point="0.8 -0.6 0.85  1.0 0.0 -0.514964051303139"/>
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+
+</SemanticTask>
+
+<SemanticTask label="orange_1_goal" parent="top" decomposable="true" fixedAllocation="true" subtaskRelation="XOR">
+
+</SemanticTask>
+
+<SemanticTask label="orange_1_goal_0" parent="orange_1_goal" decomposable="false" fixedAllocation="true" subtaskRelation="AND">
+
+	<GroupTask label="orange_1_goal_0" group="orange_1">
+	<Task label="orange_1_goal_0" robot="orange_1">
+		<StartConstraints>
+			
+		</StartConstraints>
+		<PathConstraints>
+			
+		</PathConstraints>
+		<GoalConstraints>
+			<CSpaceConstraint point="-0.6 -0.6 0.85  0.0 0.0 -0.0"/>
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+
+</SemanticTask>
+
+<SemanticTask label="orange_1_goal_1" parent="orange_1_goal" decomposable="false" fixedAllocation="true" subtaskRelation="AND">
+
+	<GroupTask label="orange_1_goal_1" group="orange_1">
+	<Task label="orange_1_goal_1" robot="orange_1">
+		<StartConstraints>
+			
+		</StartConstraints>
+		<PathConstraints>
+			
+		</PathConstraints>
+		<GoalConstraints>
+			<CSpaceConstraint point="-0.6 -0.6 0.85  1.0 0.0 -0.0"/>
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+
+</SemanticTask>
+
+<SemanticTask label="blue_1_goal" parent="top" decomposable="true" fixedAllocation="true" subtaskRelation="XOR">
+
+</SemanticTask>
+
+<SemanticTask label="blue_1_goal_0" parent="blue_1_goal" decomposable="false" fixedAllocation="true" subtaskRelation="AND">
+
+	<GroupTask label="blue_1_goal_0" group="blue_1">
+	<Task label="blue_1_goal_0" robot="blue_1">
+		<StartConstraints>
+			
+		</StartConstraints>
+		<PathConstraints>
+			
+		</PathConstraints>
+		<GoalConstraints>
+			<CSpaceConstraint point="0.6 -0.6 0.85  0.0 0.0 -0.514964051303139"/>
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+
+</SemanticTask>
+
+<SemanticTask label="blue_1_goal_1" parent="blue_1_goal" decomposable="false" fixedAllocation="true" subtaskRelation="AND">
+
+	<GroupTask label="blue_1_goal_1" group="blue_1">
+	<Task label="blue_1_goal_1" robot="blue_1">
+		<StartConstraints>
+			
+		</StartConstraints>
+		<PathConstraints>
+			
+		</PathConstraints>
+		<GoalConstraints>
+			<CSpaceConstraint point="0.6 -0.6 0.85  1.0 0.0 -0.514964051303139"/>
+		</GoalConstraints>
+	</Task>
+	</GroupTask>
+
+
+</SemanticTask>
+
+
+	</Decomposition>
+
+  </Problem>
+
+  <!-- Set available algorithms and parameters. -->
+  <Library filename="library.87823923.xml"/>
+	<TMPLibrary filename="library.87823923.xml"/>
+</MotionPlanning>
